@@ -1,36 +1,76 @@
 #include "flapmap.hh"
 
 void add_sample(uintptr_t start, size_t duration, size_t flapcount) {
-    // Placeholders to avoid compiler warnings. Replace them with your code.
-    (void) start, (void) duration, (void) flapcount; 
-}
+    // Add new element
+    flapmap[start] = {start, duration, flapcount};
+    // OR
+    // sample s = {start, duration, flapcount};
+    // flapmap.insert({start, s});
+    }
 
 bool has_sample(uintptr_t t) {
-    // Placeholders to avoid compiler warnings. Replace them with your code.
-    (void) t; 
+    // See if time is recorded in flapmap
+    for (auto it = flapmap.begin(); it != flapmap.end(); ++it) {
+        if (it->first <= t && t < it->first + it->second.duration) {
+            return true;
+        }
+    }
 	return false;
 }
 
 bool sample_overlaps(uintptr_t start, size_t duration) {
-    // Placeholders to avoid compiler warnings. Replace them with your code.
-    (void) start, (void) duration; 
+    // Check if times overlap with any existing samples
+    for (auto it = flapmap.begin(); it != flapmap.end(); ++it) {
+        if (start < it->first + it->second.duration && it->first < start + duration) {
+            return true;
+        }
+    }
 	return false;
 }
 
 bool can_coalesce_up(flapmap_iter it) {
-    // Placeholders to avoid compiler warnings. Replace them with your code.
-    (void) it; 
+    // Current iterator is not past the last element
+    assert(it != flapmap.end());
+
+    // See if there is a next element
+    auto next = it;
+    ++next;
+    if (next != flapmap.end()) {
+        // Check if the next element is next to the current element
+        if (it->first + it->second.duration == next->first) {
+            return true;
+        }
+    }
 	return false;
 }
 
 void coalesce_up(flapmap_iter it) {
-    // Placeholders to avoid compiler warnings. Replace them with your code.
-    (void) it; 
+    // Check that we can coalesce
+    assert(can_coalesce_up(it));
+
+    // coalesce current element with next element
+    auto next = it;
+    ++next;
+    it->second.duration += next->second.duration;
+    it->second.flapcount += next->second.flapcount;
+    flapmap.erase(next);
 }
 
 bool can_coalesce_down(flapmap_iter it) {
-    // Placeholders to avoid compiler warnings. Replace them with your code.
-    (void) it; 
+    // Check that we can coalesce (not at the beginning)
+    assert(it != flapmap.begin());
+    
+    // Check 
+    
+    // coalesce current element with previous element
+    auto prev = it;
+    --prev;
+    if (prev != flapmap.end()) {
+        // Check if the previous element is next to the current element
+        if (prev->first + prev->second.duration == it->first) {
+            return true;
+        }
+    }
 	return false;
 }
 
