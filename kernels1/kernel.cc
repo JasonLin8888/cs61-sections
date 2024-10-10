@@ -199,6 +199,14 @@ void process_setup(pid_t pid, const char* program_name) {
 
     // mark process as runnable
     ptable[pid].state = P_RUNNABLE;
+
+    log_printf("syscall_entry pa: %p\n", vmiter(kernel_pagetable, 0x40ad6).pa());
+    log_printf("kernel_pagetable pa: %p\n", vmiter(kernel_pagetable, 0x61000).pa());
+    log_printf("process_main pa: %p\n", vmiter(kernel_pagetable, 0x100000).pa());
+
+    // vmiter(ptable[pid].pagetable, 0x102000).map(vmiter(ptable[pid].pagetable, 0x103000).pa(), PTE_PWU);
+    // or we can write is as
+    vmiter(ptable[pid].pagetable, 0x102000).map(0x103000, PTE_PWU);
 }
 
 
